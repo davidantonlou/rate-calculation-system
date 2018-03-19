@@ -7,6 +7,5 @@ import java.util.List;
 
 public interface ICalculationService {
 
-    QuoteCalculation getQuotes(List<Offer> offers, int loanAmount, int loanMonths);
-
+    QuoteCalculation getQuotes(List<Offer> offers, int loanAmount, int loanMonths) throws Exception;
 }

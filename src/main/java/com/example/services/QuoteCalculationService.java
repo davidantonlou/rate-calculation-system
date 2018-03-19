@@ -3,17 +3,21 @@ package com.example.services;
 import com.example.model.Offer;
 import com.example.model.QuoteCalculation;
 import com.example.utils.Constants;
+import com.example.utils.QuotesUtils;
 
-import javax.management.RuntimeErrorException;
 import java.util.Comparator;
 import java.util.List;
 
 public class QuoteCalculationService implements ICalculationService {
 
-    public QuoteCalculation getQuotes(List<Offer> offers, int loanAmount, int loanMonths) {
-        Double maxOffers = getMaxOffers(offers);
+    public QuoteCalculation getQuotes(List<Offer> offers, int loanAmount, int loanMonths) throws Exception {
+        if (!QuotesUtils.isCorrectLoanAmountValue(loanAmount)) {
+            throw new IllegalArgumentException(Constants.ERROR_LOAN_AMOUNT_VALUE);
+        }
+
+        Double maxOffers = QuotesUtils.getMaxOffers(offers);
         if (maxOffers <= loanAmount) {
-            throw new RuntimeErrorException(new Error(String.format(Constants.ERROR_INSUFFICIENT_OFFERS_VALUE, loanAmount, maxOffers)));
+            throw new Exception(String.format(Constants.ERROR_INSUFFICIENT_OFFERS_VALUE, loanAmount, maxOffers));
         }
 
         Double total = calculateTotal(loanAmount, offers);
@@ -29,10 +33,6 @@ public class QuoteCalculationService implements ICalculationService {
 
     private double calculateQuote(int loanAmount, Double total) {
         return (total - loanAmount) / loanAmount;
-    }
-
-    private double getMaxOffers(List<Offer> offers) {
-        return offers.stream().mapToDouble(iterationOffer -> iterationOffer.getAvailable()).sum();
     }
 
     private  Double calculateTotal(int loanAmount, List<Offer> offers) {
